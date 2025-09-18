@@ -17,6 +17,51 @@
         body {
             font-family: "Lato", sans-serif;
         }
+        
+        /* Modal styles for social media warning */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .modal-buttons {
+            margin-top: 20px;
+        }
+        
+        .modal-buttons button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .btn-continue {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+        }
     </style>
     <script type="application/ld+json">
         {
@@ -101,6 +146,17 @@
                         <div class="mb-3">
                             <textarea class="form-control" placeholder="Message" required name="Message"></textarea>
                         </div>
+                        
+                        <!-- Privacy Consent Checkbox -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="privacyConsent" name="privacyConsent" required>
+                                <label class="form-check-label" for="privacyConsent">
+                                    <small>By selecting the box, you acknowledge that you have read and understood the above privacy notice and consent to its terms.</small>
+                                </label>
+                            </div>
+                        </div>
+                        
                         <button class="btn btn-primary" type="submit">Send</button>
                     </form>
                     
@@ -112,14 +168,28 @@
         </div>
     </section>
 
+    <!-- Social Media Warning Modal -->
+    <div id="socialMediaModal" class="modal">
+        <div class="modal-content">
+            <h4>External Link Warning</h4>
+            <p>You are now departing from the regulated site of Muir Mortgage & Financial Solutions LTD. Neither Muir Mortgage & Financial Solutions nor Stonebridge LTD are responsible for the accuracy of the information contained within the linked site.</p>
+            <div class="modal-buttons">
+                <button class="btn-continue" onclick="proceedToSocialMedia()">Continue</button>
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="w3-container w3-padding-64 w3-center w3-opacity w3-xlarge">
-        <a style="padding-right: 10px" href="https://www.facebook.com/muirmortgage/"><i class="fa fa-facebook-official w3-hover-opacity w3-xxlarge"></i></a>
-        <a href="https://www.linkedin.com/in/michelle-muir-21541710b/"><i class="fa fa-linkedin w3-hover-opacity w3-xxlarge"></i></a>
-        <p class="w3-small">Muir Mortgage & Financial Solutions is an Appointed Representative of Stonebridge Mortgage Solutions Ltd, which is authorised and regulated by the Financial Conduct Authority. Proprietor: Michelle Muir. Your home may be repossessed if you do not keep up repayments on your mortgage. As with all insurance policies, conditions and exclusions will apply.</p>
+        <a style="padding-right: 10px" href="#" onclick="showSocialMediaWarning('https://www.facebook.com/muirmortgage/')"><i class="fa fa-facebook-official w3-hover-opacity w3-xxlarge"></i></a>
+        <a href="#" onclick="showSocialMediaWarning('https://www.linkedin.com/in/michelle-muir-21541710b/')"><i class="fa fa-linkedin w3-hover-opacity w3-xxlarge"></i></a>
+        <p class="w3-small">Muir Mortgage & Financial Solutions is an Appointed Representative of Stonebridge Mortgage Solutions Ltd who is authorised and regulated by the Financial Conduct Authority. We are entered on the Financial Services Register under firm reference number 454811. Proprietor: Michelle Muir. Your home may be repossessed if you do not keep up repayments on your mortgage. As with all insurance policies, conditions and exclusions will apply.</p>
     </footer>
 
     <script>
+        let pendingSocialMediaUrl = '';
+
         function myFunction() {
             var x = document.getElementById("navDemo");
             if (x.className.indexOf("w3-show") == -1) {
@@ -128,43 +198,64 @@
                 x.className = x.className.replace(" w3-show", "");
             }
         }
-    </script>
 
-<script>
-    document.getElementById('contactForm').addEventListener('submit', async function (event) {
-        event.preventDefault();
-
-        const form = event.target;
-        const formData = new FormData(form);
-        const notification = document.getElementById('notification');
-
-        try {
-            const response = await fetch(form.action, {
-                method: form.method,
-                body: formData,
-                headers: { 'Accept': 'application/json' },
-            });
-
-            if (response.ok) {
-                notification.className = 'alert alert-success';
-                notification.textContent = 'Thank you! Your message has been sent successfully.';
-                notification.classList.remove('d-none');
-                form.reset();
-            } else {
-                throw new Error('Something went wrong. Please try again.');
-            }
-        } catch (error) {
-            notification.className = 'alert alert-danger';
-            notification.textContent = error.message;
-            notification.classList.remove('d-none');
+        function showSocialMediaWarning(url) {
+            pendingSocialMediaUrl = url;
+            document.getElementById('socialMediaModal').style.display = 'block';
         }
 
-        // Automatically hide the notification after 5 seconds
-        setTimeout(() => {
-            notification.classList.add('d-none');
-        }, 5000);
-    });
-</script>
+        function proceedToSocialMedia() {
+            window.open(pendingSocialMediaUrl, '_blank');
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('socialMediaModal').style.display = 'none';
+            pendingSocialMediaUrl = '';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('socialMediaModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        document.getElementById('contactForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const notification = document.getElementById('notification');
+
+            try {
+                const response = await fetch(form.action, {
+                    method: form.method,
+                    body: formData,
+                    headers: { 'Accept': 'application/json' },
+                });
+
+                if (response.ok) {
+                    notification.className = 'alert alert-success';
+                    notification.textContent = 'Thank you! Your message has been sent successfully.';
+                    notification.classList.remove('d-none');
+                    form.reset();
+                } else {
+                    throw new Error('Something went wrong. Please try again.');
+                }
+            } catch (error) {
+                notification.className = 'alert alert-danger';
+                notification.textContent = error.message;
+                notification.classList.remove('d-none');
+            }
+
+            // Automatically hide the notification after 5 seconds
+            setTimeout(() => {
+                notification.classList.add('d-none');
+            }, 5000);
+        });
+    </script>
 
 </body>
 
